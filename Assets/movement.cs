@@ -9,11 +9,13 @@ public class movement : MonoBehaviour
     private bool isMoving; // Flag to indicate if the player is currently moving
 
     private Vector3 targetPosition; // Target position of the player when moving
-
+   
+    [SerializeField] GameManager gameManager;
     private void Start()
     {
         currentLane = startingLane;
         UpdatePosition();
+        gameManager = FindObjectOfType<GameManager>();
     }
 
     private void Update()
@@ -53,7 +55,6 @@ public class movement : MonoBehaviour
             UpdatePosition();
         }
     }
-
     private void UpdatePosition()
     {
         float targetX = (currentLane - 2) * laneWidth;
@@ -61,16 +62,16 @@ public class movement : MonoBehaviour
         isMoving = true;
     }
 
-
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("obstacles"))
         {
             collision.gameObject.SetActive(false);
+
         }
-        else
+        else if(collision.gameObject.CompareTag("coins"))
         {
+            gameManager.coins++;
             collision.gameObject.SetActive(false);
         }
     }

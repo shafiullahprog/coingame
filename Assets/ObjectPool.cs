@@ -6,7 +6,7 @@ public class ObjectPool : MonoBehaviour
 {
     public static ObjectPool SharedInstance;
     public List<GameObject> pooledObjects;
-    public GameObject[] objectToPool;
+    public GameObject coins,obstacles;
     public Vector2 diableObject;
     public int amountToPool;
 
@@ -22,9 +22,13 @@ public class ObjectPool : MonoBehaviour
         GameObject tmp;
         for (int i = 0; i < amountToPool; i++)
         {
-            //GameObject g = objectToPool;
-            GameObject g = objectToPool[Random.Range(0, objectToPool.Length)];
-            tmp = Instantiate(g);
+            int randomNumber = Random.Range(0,2);
+            if (randomNumber == 0) {
+                tmp = Instantiate(coins); 
+            }
+            else {
+                tmp = Instantiate(obstacles);
+            }
             tmp.SetActive(false);
             pooledObjects.Add(tmp);
         }
