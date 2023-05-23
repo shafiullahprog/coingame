@@ -5,10 +5,13 @@ using UnityEngine;
 public class coinGenerator : MonoBehaviour
 {
     public GameObject[] generatePos;
+    public GameObject shield;
     public float timeToInstantiate;
+    public float shiledTimer;
     private void Start()
     {
         StartCoroutine(EnableObjects());
+        StartCoroutine(enableShiled());
     }
 
 
@@ -22,5 +25,18 @@ public class coinGenerator : MonoBehaviour
         }
         yield return new WaitForSeconds(timeToInstantiate);
         StartCoroutine(EnableObjects());
-    }    
+    }  
+    
+    IEnumerator enableShiled()
+    {
+        float newTime = Random.Range(timeToInstantiate, shiledTimer);
+        yield return new WaitForSeconds(newTime);
+        GameObject shieldInstantaite = Instantiate(shield);
+        shieldInstantaite.transform.position = generatePos[Random.Range(0, generatePos.Length)].transform.position;
+        shieldInstantaite.SetActive(true);
+        
+        yield return new WaitForSeconds(shiledTimer);
+        shieldInstantaite.SetActive(false);
+        StartCoroutine(enableShiled());
+    }
 }

@@ -6,7 +6,7 @@ public class ObjectPool : MonoBehaviour
 {
     public static ObjectPool SharedInstance;
     public List<GameObject> pooledObjects;
-    public GameObject coins,obstacles;
+    public GameObject coins,obstacles,shield;
     public Vector2 diableObject;
     public int amountToPool;
 
@@ -23,10 +23,12 @@ public class ObjectPool : MonoBehaviour
         for (int i = 0; i < amountToPool; i++)
         {
             int randomNumber = Random.Range(0,2);
-            if (randomNumber == 0) {
-                tmp = Instantiate(coins); 
+            if (randomNumber == 0) 
+            {
+                tmp = Instantiate(coins);
             }
-            else {
+            else
+            {
                 tmp = Instantiate(obstacles);
             }
             tmp.SetActive(false);
@@ -36,14 +38,22 @@ public class ObjectPool : MonoBehaviour
 
     public GameObject GetPooledObject()
     {
-        for (int i = 0; i < amountToPool; i++)
+        GameObject enableObj = pooledObjects[Random.Range(0, pooledObjects.Count)];
+        if (!enableObj.activeInHierarchy)
+        {
+            return enableObj;
+        }
+        else
+            return null;
+        /*for (int i = 0; i < amountToPool; i++)
         {
             if (!pooledObjects[i].activeInHierarchy)
             {
                 return pooledObjects[i];
+                //return pooledObjects[Random.Range()];
             }
         }
-        return null;
+        return null;*/
     }
 
     public void Update()
@@ -56,7 +66,7 @@ public class ObjectPool : MonoBehaviour
         {
             if (pooledObjects[i].transform.position.y <= diableObject.y)
             { 
-                pooledObjects[i].SetActive(false);
+                 pooledObjects[i].SetActive(false);
             }
         }
     }

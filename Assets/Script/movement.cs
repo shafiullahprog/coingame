@@ -2,15 +2,17 @@ using UnityEngine;
 
 public class movement : MonoBehaviour
 {
-    public float laneWidth = 2.0f; // Width of each lane
-    public int startingLane = 2; // Initial lane of the player
+    public float laneWidth = 2.0f; 
+    public int startingLane = 2;
+    public bool isShiledOn;
 
-    private int currentLane; // Current lane of the player
-    private bool isMoving; // Flag to indicate if the player is currently moving
-
-    private Vector3 targetPosition; // Target position of the player when moving
+    private int currentLane;
+    private bool isMoving;
+    private Vector3 targetPosition;
    
-    [SerializeField] GameManager gameManager;
+    [SerializeField] GameManager gameManager;    
+    [SerializeField] float timer = 0;
+    [SerializeField] int shieldOffTimer;
     private void Start()
     {
         currentLane = startingLane;
@@ -22,10 +24,7 @@ public class movement : MonoBehaviour
     {
         if (isMoving)
         {
-            // Move the player towards the target position
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, Time.deltaTime * 10.0f);
-
-            // Check if the player has reached the target position
             if (transform.position == targetPosition)
             {
                 isMoving = false;
@@ -33,7 +32,6 @@ public class movement : MonoBehaviour
         }
         else
         {
-            // Check for input to move the player
             if (Input.GetKeyDown(KeyCode.LeftArrow))
             {
                 MoveToLane(currentLane - 1);
@@ -43,8 +41,29 @@ public class movement : MonoBehaviour
                 MoveToLane(currentLane + 1);
             }
         }
+
+        Timer();
     }
 
+    void Timer()
+    {
+        if (isShiledOn)
+        {
+            this.transform.GetComponent<SpriteRenderer>().color = Color.green;
+            timer += Time.deltaTime;
+            int seconds = (int)(timer % 60);
+
+            if(seconds>= shieldOffTimer)
+            {
+                isShiledOn = false;
+            }
+        }
+        else
+        {
+            timer = 0;
+            this.transform.GetComponent<SpriteRenderer>().color = Color.white;
+        }
+    }
     private void MoveToLane(int lane)
     {
         // Clamp the lane value within the range [1, 3]
@@ -67,12 +86,21 @@ public class movement : MonoBehaviour
         if (collision.gameObject.CompareTag("obstacles"))
         {
             collision.gameObject.SetActive(false);
-
+            if (!isShiledOn)
+            {
+                gameManager.GameOver();
+                gameManager.gameOverScreen.SetActive(true);
+            }
         }
-        else if(collision.gameObject.CompareTag("coins"))
+        else if (collision.gameObject.CompareTag("coins"))
         {
             gameManager.coins++;
             collision.gameObject.SetActive(false);
+        }
+        else if (collision.gameObject.CompareTag("shield"))
+        {
+            collision.gameObject.SetActive(false);
+            isShiledOn = true;
         }
     }
 }
