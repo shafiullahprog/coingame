@@ -1,5 +1,4 @@
 using UnityEngine;
-
 public class movement : MonoBehaviour
 {
     public float laneWidth = 2.0f; 
@@ -7,19 +6,22 @@ public class movement : MonoBehaviour
     public bool isShiledOn;
 
     private int currentLane;
-    private bool isMoving;
     private Vector3 targetPosition;
-   
+    private Vector2 initialPosition;
+    private Touch touch;
+
     [SerializeField] GameManager gameManager;    
     [SerializeField] float timer = 0;
     [SerializeField] int shieldOffTimer;
+    private float minSwipeDistance = 100f;
+
+    private bool isMoving;
     private void Start()
     {
         currentLane = startingLane;
         UpdatePosition();
         gameManager = FindObjectOfType<GameManager>();
     }
-
     private void Update()
     {
         if (isMoving)
@@ -32,19 +34,49 @@ public class movement : MonoBehaviour
         }
         else
         {
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            if (Application.isMobilePlatform)
             {
-                MoveToLane(currentLane - 1);
+                if (Input.touchCount > 0)
+                {
+                    touch = Input.GetTouch(0);
+
+                    if (touch.phase == TouchPhase.Began)
+                    {
+                        initialPosition = touch.position;
+                    }
+                    else if (touch.phase == TouchPhase.Ended)
+                    {
+                        Vector2 swipeEndPos = touch.position;
+                        float swipeDistance = swipeEndPos.x - initialPosition.x;
+
+                        if (Mathf.Abs(swipeDistance) > minSwipeDistance)
+                        {
+                            if (swipeDistance > 0)
+                            {
+                                MoveToLane(currentLane + 1);
+                            }
+                            else
+                            {
+                                MoveToLane(currentLane - 1);
+                            }
+                        }
+                    }
+                }
             }
-            else if (Input.GetKeyDown(KeyCode.RightArrow))
+            else
             {
-                MoveToLane(currentLane + 1);
+                if (Input.GetKeyDown(KeyCode.LeftArrow))
+                {
+                    MoveToLane(currentLane - 1);
+                }
+                else if (Input.GetKeyDown(KeyCode.RightArrow))
+                {
+                    MoveToLane(currentLane + 1);
+                }
             }
+            Timer();
         }
-
-        Timer();
     }
-
     void Timer()
     {
         if (isShiledOn)
@@ -80,7 +112,6 @@ public class movement : MonoBehaviour
         targetPosition = new Vector3(targetX, transform.position.y, transform.position.z);
         isMoving = true;
     }
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("obstacles"))
@@ -104,3 +135,4 @@ public class movement : MonoBehaviour
         }
     }
 }
+
